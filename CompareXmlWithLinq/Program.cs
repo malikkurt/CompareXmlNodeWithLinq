@@ -1,13 +1,7 @@
 ﻿
-using Microsoft.VisualBasic;
 using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Security.Cryptography;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace Program
 {
@@ -16,76 +10,80 @@ namespace Program
         static void Main(string[] args)
         {
             
-            List<string> nodeList = new List<string>();
+            //Root listeleme
 
-            // 1.dosya için node ayırma kısmı
 
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load("GetLiveSportsLive.xml");
+            XDocument xDocumentLive = XDocument.Load("GetLiveSportsLive.xml");
+            XDocument xDocumentTest = XDocument.Load("GetLiveSportsTest.xml");
 
-            XmlNodeList nodes = xmlDocument.SelectNodes("//*");
-            foreach (XmlNode node in nodes)
+           /* IEnumerable<XElement> childList =
+                from el in xDocumentLive.Root.Elements()
+                select el;
+            foreach (XElement child in childList)
             {
-                XmlAttribute typeAttribute = node.Attributes["type"];
-                if (typeAttribute != null)
-                {
-                    Console.WriteLine("Node: " + node.LocalName + ", Type: " + typeAttribute.Value);
-                    nodeList.Add(typeAttribute.Value);
-                }
+                Console.WriteLine(child.Name);
             }
+           */
+            // Root Listeleme
 
-            // 2.dosya için node ayırma kısmı 
+            Console.WriteLine("-------------------------------------------------------------------");
 
-            List<string> nodeList2 = new List<string>();
-
-            XmlDocument xmlDocument2 = new XmlDocument();
-            xmlDocument2.Load("GetLiveSportsTest.xml");
-
-            XmlNodeList nodes2 = xmlDocument2.SelectNodes("//*");
-            Console.WriteLine("------------------------------------------------------------------------------------------");
-            foreach(XmlNode node2 in nodes2)
-            {
-                XmlAttribute typeAttribute2 = node2.Attributes["type"];
-                if(typeAttribute2 != null)
-                {
-                    Console.WriteLine("Node: " + node2.Name + ", Type: " + typeAttribute2.Value);
-                    nodeList2.Add(typeAttribute2.Value);
-                }
-            }
-
-            Console.WriteLine("------------------------------------------------------------------------------------------");
-
-            IEnumerable<string> difference = nodeList2.Except(nodeList);
-
-            foreach(string node2 in difference)
-            {
-                Console.WriteLine(node2);
-            }
-
-
-
-            HashSet<string> hashSet1 = new HashSet<string>(nodeList);
-            HashSet<string> hashSet2 = new HashSet<string>(nodeList2);
-
-            hashSet2.ExceptWith(hashSet1);
-
-            foreach(string node2 in hashSet1)
-            {
-                Console.WriteLine(node2);
-            }
-
+            // Node Listeleme
 
 
             
+            IEnumerable<XElement> childlist = from el in xDocumentLive.Root.Elements()
+                                              select el;
+
+
+            //foreach (XElement childlive in childlist)
+            //{
+            //    Console.WriteLine(childlive);
+            //}
+
+            Console.WriteLine("------------");
+
+            IEnumerable<XElement> childlist2 = from el in xDocumentTest.Root.Elements()
+                                               select el;
+
             
+
+            //foreach (XElement childTest in childlist2)
+            //{
+            //    Console.WriteLine(childTest);
+            //}
+
+            Console.WriteLine("------------");
+
+            
+
+
+            foreach(string nodeLoop in childlist)
+            {
+                foreach(string nodeloop_2 in childlist2)
+                {
+                    if(nodeLoop == nodeloop_2)
+                    {
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fail");
+                    }
+                }
+            }
+
+           
+
+
+        }
+
         
-    
 
 
+       
+    }
 
+        
 }
-    }
-
-        
-    }
 
