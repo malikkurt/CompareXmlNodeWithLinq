@@ -1,6 +1,9 @@
 ﻿
 using System;
+using System.Net;
+using System.Reflection;
 using System.Runtime.Serialization.Json;
+using System.Security.Cryptography;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -15,23 +18,20 @@ namespace Program
             XDocument xDocumentTest = XDocument.Load("GetLiveSportsTest.xml");
 
 
+            //IEnumerable<XElement> childlist = from el in xDocumentLive.Root.Element()
+            //                                  select el;
+
+
+            //IEnumerable<XElement> childlist2 = from el in xDocumentTest.Root.Elements().Elements()
+            //                                   select el;
 
 
 
-            IEnumerable<XElement> childlist = from el in xDocumentLive.Root.Elements().Elements()
-                                              select el;
-            
-            
-            IEnumerable<XElement> childlist2 = from el in xDocumentTest.Root.Elements().Elements()
-                                              select el;
-
-
-
-            foreach (XElement childlive in childlist)
-            {
-                Console.WriteLine(childlive);
-                Console.WriteLine("------------");
-            }
+            //foreach (XElement childlive in childlist)
+            //{
+            //    Console.WriteLine(childlive);
+            //    Console.WriteLine("------------");
+            //}
 
 
             //foreach (XElement childTest in childlist2)
@@ -41,52 +41,58 @@ namespace Program
             //}
 
 
-            var liveElements = xDocumentLive.Descendants("xs:element");
+            //XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
+            //var portTypeName = "portType";
+            //var esit = "=";
+            //var name = "name";
+
+            //IEnumerable<XElement> childGetLive = from rl in xDocumentLive.Descendants(wsdl + portTypeName + name + esit + "\"ILiveSportsBS\"")
+            //                                     select rl;
 
 
-            //var missingElements = liveElements.Where(liveElem => !testElements.Any(testElem => testElem.Attribute("name").Value == liveElem.Attribute("name").Value));
-            //foreach (var missingElement in missingElements)
+
+
+            //foreach (XElement child in childGetLive)
             //{
-            //    differences.Add("Element " + missingElement.Attribute("name").Value + " is missing in test WSDL.");
+            //    Console.WriteLine(child);
             //}
 
-            //// Compare sequence differences
-            //foreach (var liveElement in liveElements)
+            string choosenNode = "GetLiveSports";
+
+            XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
+             
+            //foreach ( XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "input" ))
             //{
-            //    string elementName = liveElement.Attribute("name").Value;
-            //    var testElement = testElements.FirstOrDefault(testElem => testElem.Attribute("name").Value == elementName);
+            //    Console.WriteLine(xElementLive.Name + " = " + xElementLive.Value + " = " + xElementLive.FirstAttribute);
+            //}
 
-            //    if (testElement != null)
-            //    {
-            //        var liveSequence = liveElement.Descendants("xs:sequence").FirstOrDefault();
-            //        var testSequence = testElement.Descendants("xs:sequence").FirstOrDefault();
+            foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "input"))
+            {
+                
+                XElement xElement = XElement.Parse(xElementLive.ToString());
 
-            //        if (liveSequence != null && testSequence != null)
-            //        {
-            //            bool sequenceMatch = XNode.DeepEquals(liveSequence, testSequence);
-            //            if (!sequenceMatch)
-            //            {
-            //                differences.Add("Element " + elementName + " sequence is different between live and test WSDL.");
-            //            }
-            //        }
-            //    }
+                string result = xElement.FirstAttribute.ToString();
 
+                string lastResult = result.Substring(result.LastIndexOf("/")+ 1);
 
+                string lastlastResult = lastResult.Substring(0, lastResult.Length - 1);
 
-
-
-
-
-
-
-
-
-
-
-
-
+                Console.WriteLine(lastlastResult);
+                
             }
 
+
+
+
+
+
+
+
+
+
+
+
+        }
     }
 
 }
