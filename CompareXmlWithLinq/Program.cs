@@ -14,8 +14,13 @@ namespace Program
         static void Main(string[] args)
         {
 
+
             XDocument xDocumentLive = XDocument.Load("GetLiveSportsLive.xml");
             XDocument xDocumentTest = XDocument.Load("GetLiveSportsTest.xml");
+
+            string resultOutputILiveSportsBS = null;
+
+
 
 
             //IEnumerable<XElement> childlist = from el in xDocumentLive.Root.Element()
@@ -41,17 +46,6 @@ namespace Program
             //}
 
 
-            //XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
-            //var portTypeName = "portType";
-            //var esit = "=";
-            //var name = "name";
-
-            //IEnumerable<XElement> childGetLive = from rl in xDocumentLive.Descendants(wsdl + portTypeName + name + esit + "\"ILiveSportsBS\"")
-            //                                     select rl;
-
-
-
-
             //foreach (XElement child in childGetLive)
             //{
             //    Console.WriteLine(child);
@@ -59,39 +53,89 @@ namespace Program
 
             string choosenNode = "GetLiveSports";
 
-            XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
-             
-            //foreach ( XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "input" ))
-            //{
-            //    Console.WriteLine(xElementLive.Name + " = " + xElementLive.Value + " = " + xElementLive.FirstAttribute);
-            //}
 
-            foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "input"))
+            XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
+
+            Console.WriteLine("--------output--------");
+
+            foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "output"))
             {
-                
+
                 XElement xElement = XElement.Parse(xElementLive.ToString());
 
                 string result = xElement.FirstAttribute.ToString();
 
-                string lastResult = result.Substring(result.LastIndexOf("/")+ 1);
+                string lastResult = result.Substring(result.LastIndexOf("/") + 1);
 
                 string lastlastResult = lastResult.Substring(0, lastResult.Length - 1);
 
                 Console.WriteLine(lastlastResult);
-                
+
             }
 
 
+            
 
 
 
 
+            //foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "portType"))
+            //{
+
+            //    XElement xElement = XElement.Parse(xElementLive.ToString());
+
+            //    string result = xElement.FirstAttribute.ToString();
+
+            //    string lastResult = result.Substring(result.LastIndexOf("/") + 1);
+
+            //    string lastlastResult = lastResult.Substring(0, lastResult.Length - 1);
+
+            //    Console.WriteLine(lastlastResult);
+
+            //}
+
+            foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "portType"))
+            {
+                foreach(XElement xElement in xElementLive.Descendants(wsdl + "operation")){
+                    
+                    XElement xElementParse = XElement.Parse(xElement.ToString());
+
+                    string xElementToString = xElementParse.FirstAttribute.ToString();
+
+                    string xElementToSubstring = xElementToString.Substring(xElementToString.LastIndexOf("=") + 1);
+
+                    string xElementToSubstringDouble = xElementToSubstring.Substring(1, xElementToSubstring.Length - 2);
 
 
+                    if (xElementToSubstringDouble == choosenNode)
+                    {
+                        Console.WriteLine("Buldum " + xElementToSubstring);
+
+                        choosenNode = xElementToSubstringDouble;
+
+                        XElement xElementOutput = xElementParse.Element(wsdl + "output");
+
+                        XElement xElement1 = XElement.Parse(xElementOutput.ToString());
+
+                        string resultOutput = xElement1.FirstAttribute.ToString();
+
+                        string lastResultOutput = resultOutput.Substring(resultOutput.LastIndexOf("/"));
+
+                        string lastlastResultOutput = lastResultOutput.Substring(1, lastResultOutput.Length - 2);
+
+                        resultOutputILiveSportsBS = lastlastResultOutput;
+
+                        Console.WriteLine(lastlastResultOutput);
+
+                        break;
+                     
+                        
 
 
-
-
+                    }                    
+                }
+            }
+            
         }
     }
 
