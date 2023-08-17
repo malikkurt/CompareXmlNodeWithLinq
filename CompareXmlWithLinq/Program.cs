@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -15,35 +14,52 @@ namespace Program
         static void Main(string[] args)
         {
 
-            XDocument xDocumentLive = XDocument.Load("GetLiveSportsLive.xml");
-            XDocument xDocumentTest = XDocument.Load("GetLiveSportsTest.xml");
-
-            List<string> listLive = new List<string>();
-            List<string> listTest = new List<string>();
-
-
-            Console.WriteLine("Enter Node Road:");
-            string choosenNode = Console.ReadLine();
-
-            Console.WriteLine("Enter input or output");
-            string choosenPath = Console.ReadLine();
-
-            XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
-            XNamespace xs = "http://www.w3.org/2001/XMLSchema";
-
-            listLive = findNodeRoad(xDocumentLive, wsdl, xs, choosenNode , choosenPath);
-
-            listTest = findNodeRoad(xDocumentTest, wsdl, xs, choosenNode , choosenPath);
-
-           
-            Console.WriteLine("----Farklar----");
-
-            var firstNotSecond = listLive.Where(i => !listTest.Contains(i)).ToList();
-
-            foreach(var item in firstNotSecond)
+            while (true)
             {
-                Console.WriteLine(item);
+                XDocument xDocumentLive = XDocument.Load("MALIK_LIVE.xml");
+                XDocument xDocumentTest = XDocument.Load("MALIK_TEST.xml");
+
+                List<string> listLive = new List<string>();
+                List<string> listTest = new List<string>();
+
+
+                Console.WriteLine("Enter Node Road:");
+                string choosenNode = Console.ReadLine();
+
+                Console.WriteLine("Enter input or output");
+                string choosenPath = Console.ReadLine();
+
+                XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
+                XNamespace xs = "http://www.w3.org/2001/XMLSchema";
+
+                listLive = findNodeRoad(xDocumentLive, wsdl, xs, choosenNode, choosenPath);
+
+                listTest = findNodeRoad(xDocumentTest, wsdl, xs, choosenNode, choosenPath);
+
+                Console.WriteLine("----Farklar----");
+
+                Console.WriteLine("\n----Dosya 1----\n");
+
+                var firstNotSecond = listLive.Where(i => !listTest.Contains(i)).ToList();
+
+                foreach (var item in firstNotSecond)
+                {
+                    Console.WriteLine(item);
+                }
+
+                Console.WriteLine("\n----Dosya 2----\n");
+
+                var secondNotFirst = listTest.Where(i => !listLive.Contains(i)).ToList();
+
+                foreach (var item in secondNotFirst)
+                {
+                    Console.WriteLine(item);
+                }
+
             }
+
+
+
 
 
         }
@@ -58,10 +74,8 @@ namespace Program
             {
                 foreach (XElement xElement in xElementLive.Descendants(wsdl + "operation"))
                 {
-                    //string xElementToString = xElement.FirstAttribute.ToString();
-                    
-                    string xElementToString = xElement.FirstAttribute.Value.ToString();
 
+                    string xElementToString = xElement.FirstAttribute.Value.ToString();
 
                     if (xElementToString == choosenNode)
                     {
@@ -124,9 +138,12 @@ namespace Program
                                 string xElementStringToSubstring = xElementString.Substring(xElementString.LastIndexOf(":") + 1);
 
 
-                                choosenNode = xElementStringToSubstring;
+                                if (xElementString.Contains("tns:"))
+                                {
+                                    choosenNode = propName;
+                                }
 
-                                Console.WriteLine(choosenNode + propName);
+                                Console.WriteLine(xElementStringToSubstring);
                                 
                                 fullNodeRoad.Add(choosenNode);
                             }
@@ -142,7 +159,7 @@ namespace Program
             {
                 foreach (XAttribute xElement1 in xElementLive.Descendants().Attributes("name"))
                 {
-                    string xElement1ToSubstringDouble = xElement1.Value; // Get the value directly
+                    string xElement1ToSubstringDouble = xElement1.Value; 
 
                     if (xElement1ToSubstringDouble.Equals(choosenNode))
                     {
@@ -206,8 +223,9 @@ namespace Program
                 }
             }
 
-
+            Console.WriteLine("----Blok Sonu----");
             return fullNodeRoad;
+            
         }
     }
 }
