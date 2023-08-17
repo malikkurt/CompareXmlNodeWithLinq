@@ -15,37 +15,61 @@ namespace Program
         static void Main(string[] args)
         {
 
-
             XDocument xDocumentLive = XDocument.Load("GetLiveSportsLive.xml");
             XDocument xDocumentTest = XDocument.Load("GetLiveSportsTest.xml");
+
+            List<string> listLive = new List<string>();
+            List<string> listTest = new List<string>();
+
 
             Console.WriteLine("Enter Node Road:");
             string choosenNode = Console.ReadLine();
 
-     
+            Console.WriteLine("Enter input or output");
+            string choosenPath = Console.ReadLine();
 
             XNamespace wsdl = "http://schemas.xmlsoap.org/wsdl/";
-
             XNamespace xs = "http://www.w3.org/2001/XMLSchema";
 
+            listLive = findNodeRoad(xDocumentLive, wsdl, xs, choosenNode , choosenPath);
 
+            listTest = findNodeRoad(xDocumentTest, wsdl, xs, choosenNode , choosenPath);
+
+           
+            Console.WriteLine("----Farklar----");
+
+            var firstNotSecond = listLive.Where(i => !listTest.Contains(i)).ToList();
+
+            foreach(var item in firstNotSecond)
+            {
+                Console.WriteLine(item);
+            }
+
+
+        }
+
+        private static List<string> findNodeRoad(XDocument xDocumentLive, XNamespace wsdl, XNamespace xs, string choosenNode , string choosenPath)
+        {
             Console.WriteLine("--------");
+
+            List<string> fullNodeRoad = new List<string>();
 
             foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "portType"))
             {
                 foreach (XElement xElement in xElementLive.Descendants(wsdl + "operation"))
                 {
-                    string xElementToString = xElement.FirstAttribute.ToString();
+                    //string xElementToString = xElement.FirstAttribute.ToString();
+                    
+                    string xElementToString = xElement.FirstAttribute.Value.ToString();
 
-                    string xElementToSubstring = xElementToString.Substring(xElementToString.LastIndexOf("=") + 1);
 
-                    string xElementToSubstringDouble = xElementToSubstring.Substring(1, xElementToSubstring.Length - 2);
-
-                    if (xElementToSubstringDouble == choosenNode)
+                    if (xElementToString == choosenNode)
                     {
-                        Console.WriteLine("Buldum " + xElementToSubstring);
+                        Console.WriteLine("Buldum " + xElementToString);
 
-                        XElement xElementOutput = xElement.Element(wsdl + "output");
+                        fullNodeRoad.Add(choosenNode);
+
+                        XElement xElementOutput = xElement.Element(wsdl + choosenPath);
 
                         XElement xElementOutputToParse = XElement.Parse(xElementOutput.ToString());
 
@@ -58,15 +82,16 @@ namespace Program
                         choosenNode = xElementOutputToSubstringDouble;
 
                         Console.WriteLine(choosenNode);
+                        
+                        fullNodeRoad.Add(choosenNode);
 
                         break;
                     }
+
                 }
             }
 
-
             Console.WriteLine("--------");
-
 
             foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "types"))
             {
@@ -102,6 +127,8 @@ namespace Program
                                 choosenNode = xElementStringToSubstring;
 
                                 Console.WriteLine(choosenNode + propName);
+                                
+                                fullNodeRoad.Add(choosenNode);
                             }
                         }
                     }
@@ -111,61 +138,76 @@ namespace Program
             Console.WriteLine("--------");
 
 
-                foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "types"))
+            foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "types"))
+            {
+                foreach (XAttribute xElement1 in xElementLive.Descendants().Attributes("name"))
                 {
-                    foreach (XAttribute xElement1 in xElementLive.Descendants().Attributes("name"))
+                    string xElement1ToSubstringDouble = xElement1.Value; // Get the value directly
+
+                    if (xElement1ToSubstringDouble.Equals(choosenNode))
                     {
+                        Console.WriteLine("Buldum " + xElement1ToSubstringDouble);
 
-                        string xElement1ToString = xElement1.ToString();
-
-                        string xElement1ToSubstring = xElement1ToString.Substring(xElement1ToString.LastIndexOf("=") + 1);
-
-                        string xElement1ToSubstringDouble = xElement1ToSubstring.Substring(1, xElement1ToSubstring.Length - 2);
-
-
-                        if (xElement1ToSubstringDouble.Equals(choosenNode))
+                        foreach (XElement xTypeElement in xElement1.Parent.Descendants().Where(n => n.Name.LocalName == "element"))
                         {
-                            Console.WriteLine("Buldum " + xElement1ToSubstringDouble);
+                            XAttribute xElementType = xTypeElement.Attribute("type");
+                            XAttribute xAttribute = xTypeElement.Attribute("name");
+                            XAttribute xAttributeNıllable = xTypeElement.Attribute("nillable");
 
-                            foreach (XAttribute xElementType in xElement1.Parent.Descendants().Attributes("type"))
+                            if (xElementType != null && xAttribute != null)
                             {
-                                string xElementTypeToString = xElementType.ToString();
+                                string xElementTypeToString = xElementType.Value;
 
-                                foreach(XAttribute xAttribute in xElement1.Parent.Descendants().Attributes("name"))
+                                if (xAttributeNıllable != null && !string.IsNullOrEmpty(xAttributeNıllable.Value))
                                 {
-
+                                    string nillableValue = xAttributeNıllable.Value;
 
                                     if (xElementTypeToString.Contains("tns:"))
                                     {
-                                        string xElementTypeToSubstring = xElementTypeToString.Substring(xElementTypeToString.LastIndexOf(":") + 1);
-
-                                        string xElementTypeToSubstringDouble = xElementTypeToSubstring.Substring(0, xElementTypeToSubstring.Length - 1);
+                                        string xElementTypeToSubstringDouble = xElementTypeToString.Substring(4);
 
                                         choosenNode = xElementTypeToSubstringDouble;
 
-                                        Console.WriteLine(xElementTypeToSubstringDouble +" " + xAttribute);
+                                        Console.WriteLine(xElementTypeToSubstringDouble + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+
+                                        fullNodeRoad.Add(xElementTypeToSubstringDouble + " name = " + xAttribute.Value + " nillable = " + nillableValue);
                                     }
                                     else
                                     {
-                                        Console.WriteLine(xElementTypeToString + " " + xAttribute);
+                                        Console.WriteLine(xElementTypeToString + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+
+                                        fullNodeRoad.Add(xElementTypeToString + " name = " + xAttribute.Value + " nillable = " + nillableValue);
                                     }
-
-
-
-
                                 }
+                                else
+                                {
+                                    if (xElementTypeToString.Contains("tns:"))
+                                    {
+                                        string xElementTypeToSubstringDouble = xElementTypeToString.Substring(4);
 
-                                
+                                        choosenNode = xElementTypeToSubstringDouble;
 
+                                        Console.WriteLine(xElementTypeToSubstringDouble + " name = " + xAttribute.Value);
 
-                                
+                                        fullNodeRoad.Add(xElementTypeToSubstringDouble + " name = " + xAttribute.Value);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(xElementTypeToString + " name = " + xAttribute.Value);
+
+                                        fullNodeRoad.Add(xElementTypeToString + " name = " + xAttribute.Value);
+                                    }
+                                }
                             }
-                            Console.WriteLine("--------");
-                
-                            
                         }
+
+                        Console.WriteLine("--------");
                     }
                 }
+            }
+
+
+            return fullNodeRoad;
         }
     }
 }
