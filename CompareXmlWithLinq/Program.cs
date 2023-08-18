@@ -140,7 +140,7 @@ namespace Program
 
                                 if (xElementString.Contains("tns:"))
                                 {
-                                    choosenNode = propName;
+                                    choosenNode = xElementStringToSubstring;
                                 }
 
                                 Console.WriteLine(xElementStringToSubstring);
@@ -154,75 +154,85 @@ namespace Program
 
             Console.WriteLine("--------");
 
+            bool loopFlag = true;
 
-            foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "types"))
+            while (loopFlag)
             {
-                foreach (XAttribute xElement1 in xElementLive.Descendants().Attributes("name"))
+                loopFlag = false;
+
+                foreach (XElement xElementLive in xDocumentLive.Root.Descendants().Where(n => n.Name == wsdl + "types"))
                 {
-                    string xElement1ToSubstringDouble = xElement1.Value; 
-
-                    if (xElement1ToSubstringDouble.Equals(choosenNode))
+                    foreach (XElement xElement1 in xElementLive.Descendants(xs + "schema").Elements())
                     {
-                        Console.WriteLine("Buldum " + xElement1ToSubstringDouble);
+                        string xElement1ToSubstringDouble = xElement1.FirstAttribute.Value;
 
-                        foreach (XElement xTypeElement in xElement1.Parent.Descendants().Where(n => n.Name.LocalName == "element"))
+                        if (xElement1ToSubstringDouble.Equals(choosenNode))
                         {
-                            XAttribute xElementType = xTypeElement.Attribute("type");
-                            XAttribute xAttribute = xTypeElement.Attribute("name");
-                            XAttribute xAttributeNıllable = xTypeElement.Attribute("nillable");
+                            Console.WriteLine("Buldum " + xElement1ToSubstringDouble);
 
-                            if (xElementType != null && xAttribute != null)
+                            foreach (XElement xTypeElement in xElement1.Descendants().Where(n => n.Name.LocalName == "element"))
                             {
-                                string xElementTypeToString = xElementType.Value;
+                                XAttribute xElementType = xTypeElement.Attribute("type");
+                                XAttribute xAttribute = xTypeElement.Attribute("name");
+                                XAttribute xAttributeNıllable = xTypeElement.Attribute("nillable");
 
-                                if (xAttributeNıllable != null && !string.IsNullOrEmpty(xAttributeNıllable.Value))
+                                if (xElementType != null && xAttribute != null)
                                 {
-                                    string nillableValue = xAttributeNıllable.Value;
+                                    string xElementTypeToString = xElementType.Value;
 
-                                    if (xElementTypeToString.Contains("tns:"))
+                                    if (xAttributeNıllable != null && !string.IsNullOrEmpty(xAttributeNıllable.Value))
                                     {
-                                        string xElementTypeToSubstringDouble = xElementTypeToString.Substring(4);
+                                        string nillableValue = xAttributeNıllable.Value;
 
-                                        choosenNode = xElementTypeToSubstringDouble;
+                                        if (xElementTypeToString.Contains("tns:"))
+                                        {
+                                            string xElementTypeToSubstringDouble = xElementTypeToString.Substring(4);
 
-                                        Console.WriteLine(xElementTypeToSubstringDouble + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+                                            choosenNode = xElementTypeToSubstringDouble;
 
-                                        fullNodeRoad.Add(xElementTypeToSubstringDouble + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+                                            loopFlag = true;
+
+                                            Console.WriteLine(xElementTypeToSubstringDouble + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+
+                                            fullNodeRoad.Add(xElementTypeToSubstringDouble + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(xElementTypeToString + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+
+                                            fullNodeRoad.Add(xElementTypeToString + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+                                        }
                                     }
                                     else
                                     {
-                                        Console.WriteLine(xElementTypeToString + " name = " + xAttribute.Value + " nillable = " + nillableValue);
+                                        if (xElementTypeToString.Contains("tns:"))
+                                        {
+                                            string xElementTypeToSubstringDouble = xElementTypeToString.Substring(4);
 
-                                        fullNodeRoad.Add(xElementTypeToString + " name = " + xAttribute.Value + " nillable = " + nillableValue);
-                                    }
-                                }
-                                else
-                                {
-                                    if (xElementTypeToString.Contains("tns:"))
-                                    {
-                                        string xElementTypeToSubstringDouble = xElementTypeToString.Substring(4);
+                                            choosenNode = xElementTypeToSubstringDouble;
 
-                                        choosenNode = xElementTypeToSubstringDouble;
+                                            loopFlag = true;
 
-                                        Console.WriteLine(xElementTypeToSubstringDouble + " name = " + xAttribute.Value);
+                                            Console.WriteLine(xElementTypeToSubstringDouble + " name = " + xAttribute.Value);
 
-                                        fullNodeRoad.Add(xElementTypeToSubstringDouble + " name = " + xAttribute.Value);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine(xElementTypeToString + " name = " + xAttribute.Value);
+                                            fullNodeRoad.Add(xElementTypeToSubstringDouble + " name = " + xAttribute.Value);
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(xElementTypeToString + " name = " + xAttribute.Value);
 
-                                        fullNodeRoad.Add(xElementTypeToString + " name = " + xAttribute.Value);
+                                            fullNodeRoad.Add(xElementTypeToString + " name = " + xAttribute.Value);
+                                        }
                                     }
                                 }
                             }
                         }
-
-                        Console.WriteLine("--------");
                     }
                 }
-            }
 
+                Console.WriteLine("--------");
+            }
+            
             Console.WriteLine("----Blok Sonu----");
             return fullNodeRoad;
             
