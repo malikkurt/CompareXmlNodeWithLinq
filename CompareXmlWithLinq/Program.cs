@@ -63,20 +63,21 @@ namespace Program
                 }
 
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("Live Dosyasında olup Test Dosyasında olmayanlar");
 
+                sb.AppendLine("LiveDosyasında Olup Test Dosyasında olmayanlar");
+             
                 foreach (string item in firstNotSecond)
                 {
-                    byte[] AscııValues = Encoding.ASCII.GetBytes(item);
-                    foreach (byte b in AscııValues)
+                    foreach (char c in item)
                     {
-                        string str = b.ToString();
-                        sb.AppendLine(str);
-                        
+                        sb.Append(System.Convert.ToInt32(c).ToString()); 
+                        sb.Append(" ");
                     }
+                   
+                    
                 }
 
-                File.WriteAllText("difference.txt", sb.ToString());
+                File.WriteAllText("difference.txt", sb.ToString(),Encoding.UTF8);
 
             }
         }
